@@ -146,13 +146,14 @@ public class GameView extends SurfaceView implements Runnable
                     || player.getY() == player.getMinY())
             {
                 //moving enemy outside the left edge
-                o.setX(-200);
+                //o.setX(-200);
                 if(player.getScore() > player.getHighScore())
                 {
                     player.setHighScore(player.getScore());
                     //display score
-                    player.resetScore();
                 }
+
+                player.resetScore();
                 //Vibrator v = (Vibrator) this.getContext().getSystemService(Context.VIBRATOR_SERVICE);
                 // Vibrate for 500 milliseconds
                 /**    Log.v ("Can Vibrate", "YES");
@@ -165,12 +166,11 @@ public class GameView extends SurfaceView implements Runnable
             }
 
             //if player left(x) passes obstacle right(x+width)
-            if(player.getX() == o.getX()+o.getBitmap().getWidth()
-                    && !(Rect.intersects(player.getDetectCollision(), o.getDetectCollisionTop())
-                    || Rect.intersects(player.getDetectCollision(), o.getDetectCollisionBottom())))
+            else if(player.getX() == o.getX()+o.getBitmap().getWidth())
             {
                 player.setScore();
             }
+
         }
     }
 
@@ -228,7 +228,7 @@ public class GameView extends SurfaceView implements Runnable
                 //Score text
                 int tsize = 80;
                 paint.setTextSize(tsize);
-                canvas.drawText(""+player.getScore(), 10/**screenX/2*/, tsize+20, paint);
+                canvas.drawText(""+player.getScore(), screenX/2, tsize+20, paint);
             }
 
             //Unlocking the canvas
