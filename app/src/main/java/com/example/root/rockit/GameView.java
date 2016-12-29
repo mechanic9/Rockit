@@ -29,6 +29,8 @@ import java.util.Random;
 
 public class GameView extends SurfaceView implements Runnable
 {
+    Obstacle temp;
+    int tempNo;
     //boolean variable to track if the game is playing or not
     volatile boolean playing;
 
@@ -83,6 +85,8 @@ public class GameView extends SurfaceView implements Runnable
         }
         obstacleHandler = new ObstacleHandler(context, player, screenX, screenY);
         obstacles = obstacleHandler.getObstacles();
+        tempNo = 1;
+        temp = obstacles.get(tempNo-1);
 
         //pause();
 
@@ -92,7 +96,17 @@ public class GameView extends SurfaceView implements Runnable
     @Override
     public void run()
     {
-        gameLoop();
+        while(playing)
+        {
+            //to update the frame
+            update();
+
+            //to draw the frame
+            playDraw();
+
+            //to control
+            control();
+        }
     }
 
     //Player Controls
@@ -102,15 +116,10 @@ public class GameView extends SurfaceView implements Runnable
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK)
         {
             case MotionEvent.ACTION_UP:
-                //When the user presses on the screen
-                //Check direction
-                // player.move..()
-                // player.shoot()
-
                 //stopping the boosting when screen is released
                 player.stopBoosting();
-
                 break;
+
             case MotionEvent.ACTION_DOWN:
                 //When the user releases the screen
                 if(playing == false)
@@ -166,9 +175,18 @@ public class GameView extends SurfaceView implements Runnable
             }
 
             //if player left(x) passes obstacle right(x+width)
-            else if(player.getX() == o.getX()+o.getBitmap().getWidth())
+            else if(player.getX() < o.getTrailX() && player.getX() > o.getX())
             {
-                player.setScore();
+                //check for unique obstacle
+                if(temp.equals(o))
+                {
+                    player.setScore();
+                    temp = obstacles.get(tempNo++);
+                    if(tempNo == obstacles.size())
+                    {
+                        tempNo = 0;
+                    }
+                }
             }
 
         }
@@ -248,21 +266,6 @@ public class GameView extends SurfaceView implements Runnable
         }
     }
 
-    public void gameLoop()
-    {
-        while(playing)
-        {
-            //to update the frame
-            update();
-
-            //to draw the frame
-            playDraw();
-
-            //to control
-            control();
-        }
-    }
-
     public void pause()
     {
         //when the game is paused
@@ -284,11 +287,6 @@ public class GameView extends SurfaceView implements Runnable
         playing = play;
     }
 
-    public void restart()
-    {
-        //this.startActivity(new Intent(this, GameActivity.class));
-    }
-
     public void resume()
     {
         //when the game is resumed
@@ -296,11 +294,6 @@ public class GameView extends SurfaceView implements Runnable
         playing = true;
         gameThread = new Thread(this);
         gameThread.start();
-    }
-
-    public void displayScore()
-    {
-
     }
 
     public void gameOver()
