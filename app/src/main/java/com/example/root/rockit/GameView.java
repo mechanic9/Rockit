@@ -83,13 +83,11 @@ public class GameView extends SurfaceView implements Runnable
             Star s = new Star(screenX, screenY);
             stars.add(s);
         }
+
         obstacleHandler = new ObstacleHandler(context, player, screenX, screenY);
         obstacles = obstacleHandler.getObstacles();
         tempNo = 1;
         temp = obstacles.get(tempNo-1);
-
-        //pause();
-
     }
 
 
@@ -121,11 +119,6 @@ public class GameView extends SurfaceView implements Runnable
                 break;
 
             case MotionEvent.ACTION_DOWN:
-                //When the user releases the screen
-                if(playing == false)
-                {
-                    resume();
-                }
                 //boosting when screen is pressed
                 player.startBoosting();
                 break;
@@ -246,7 +239,7 @@ public class GameView extends SurfaceView implements Runnable
                 //Score text
                 int tsize = 80;
                 paint.setTextSize(tsize);
-                canvas.drawText(""+player.getScore(), screenX/2, tsize+20, paint);
+                canvas.drawText(""+player.getScore(), screenX/2-tsize/2, tsize, paint);
             }
 
             //Unlocking the canvas
@@ -280,6 +273,16 @@ public class GameView extends SurfaceView implements Runnable
         {
 
         }
+    }
+
+    public Player getPlayer()
+    {
+        return player;
+    }
+
+    public ObstacleHandler getObstacleHandler()
+    {
+        return obstacleHandler;
     }
 
     public void setPlaying(boolean play)
