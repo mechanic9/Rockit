@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
+import android.os.Message;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -21,6 +22,7 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.Handler;
 
 /**
  * Created by root on 12/16/16.
@@ -58,11 +60,17 @@ public class GameView extends SurfaceView implements Runnable
     private ObstacleHandler obstacleHandler;
     private ArrayList<Obstacle> obstacles = new ArrayList<Obstacle>();
 
+    //Activity
+    MainActivity activity;
+    Message overMsg = new Message();
+
 
     //Class constructor
     public GameView(Context context, int screenX, int screenY)
     {
         super(context);
+
+        this.activity = (MainActivity)context;
 
         this.screenX = screenX;
         this.screenY = screenY;
@@ -130,6 +138,26 @@ public class GameView extends SurfaceView implements Runnable
     {
         //updating player position
         player.update();
+        if(activity != null && activity.getScoreView() != null)
+        {
+            activity.getMainHandler().post(new Runnable() {
+                @Override
+                public void run() {
+
+                    activity.updateScore(player.getScore());
+                }
+            });
+        }
+        if(activity.getHighScoreText() != null)
+        {
+            activity.getMainHandler().post(new Runnable() {
+                @Override
+                public void run()
+                {
+                    activity.updateHighScore(player.getHighScore());
+                }
+            });
+        }
 
         obstacleHandler.update();
 
@@ -155,7 +183,19 @@ public class GameView extends SurfaceView implements Runnable
                     //display score
                 }
 
+                if(activity != null && activity.getGame() != null)
+                {
+                    activity.getMainHandler().post(new Runnable()
+                    {
+                        @Override
+                        public void run() {
+                            activity.gameOver();
+                        }
+                    });
+                }
+                pause();
                 player.resetScore();
+
                 //Vibrator v = (Vibrator) this.getContext().getSystemService(Context.VIBRATOR_SERVICE);
                 // Vibrate for 500 milliseconds
                 /**    Log.v ("Can Vibrate", "YES");
@@ -235,11 +275,6 @@ public class GameView extends SurfaceView implements Runnable
                             o.getDownY(i),
                             paint);
                 }
-
-                //Score text
-                int tsize = 80;
-                paint.setTextSize(tsize);
-                canvas.drawText(""+player.getScore(), screenX/2-tsize/2, tsize, paint);
             }
 
             //Unlocking the canvas
